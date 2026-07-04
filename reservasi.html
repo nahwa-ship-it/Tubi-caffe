@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservasi Meja</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="card">
+            <h2>Formulir Reservasi</h2>
+            <form id="formReservasi">
+                <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" id="resNama" required>
+                </div>
+                <div class="form-group">
+                    <label>Nomor WhatsApp</label>
+                    <input type="tel" id="resWA" placeholder="Contoh: 081234..." required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tanggal</label>
+                        <input type="date" id="resTanggal" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Jam</label>
+                        <input type="time" id="resJam" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Pilih Meja</label>
+                        <select id="resMeja" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Jumlah Orang</label>
+                        <input type="number" id="resOrang" min="1" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Catatan Tambahan</label>
+                    <textarea id="resCatatan" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Kirim Reservasi ke WhatsApp</button>
+            </form>
+            <p><a href="index.html">← Kembali ke Beranda</a></p>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="app.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", initReservasiPage);
+    </script>
+</body>
+</html>

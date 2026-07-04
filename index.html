@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="titleCafe">Memuat...</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="hero" id="heroBg">
+        <div class="hero-content">
+            <img id="logoCafe" src="" alt="Logo" class="cafe-logo-img" style="display:none;">
+            <h1 id="namaCafe">Memuat Nama Cafe...</h1>
+            <p id="taglineCafe">Memuat Tagline...</p>
+            <div class="hero-buttons">
+                <a href="reservasi.html" class="btn btn-primary">Reservasi Meja</a>
+                <a href="#menu" class="btn btn-secondary">Lihat Menu</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Filter Kategori -->
+        <section class="category-section">
+            <div id="categoryFilter" class="category-tabs"></div>
+        </section>
+
+        <!-- Daftar Menu -->
+        <section id="menu" class="menu-section">
+            <h2>Daftar Menu Kami</h2>
+            <div id="menuContainer" class="menu-grid"></div>
+        </section>
+
+        <!-- Info Cafe -->
+        <section class="info-section">
+            <h2>Informasi Cafe</h2>
+            <p><strong>Alamat:</strong> <span id="alamatCafe">-</span></p>
+            <p><strong>Jam Operasional:</strong> <span id="jamCafe">-</span></p>
+        </section>
+    </main>
+
+    <!-- Floating WhatsApp -->
+    <a id="waFloat" href="#" target="_blank" class="wa-floating">💬 Hubungi Kami</a>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="app.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", initPublicPage);
+    </script>
+</body>
+</html>
