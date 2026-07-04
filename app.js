@@ -15,9 +15,9 @@ let appPesanan = [];
 async function uploadFile(file, folder) {
     const fileExt = file.name.split('.').pop();
     const fileName = `${folder}/${Date.now()}_${Math.random().toString(36).slice(2)}.${fileExt}`;
-    const { error } = await supabaseClient.storage.from('cafe-assets').upload(fileName, file);
+    const { error } = await supabaseClient.storage.from('Tubi-caffe').upload(fileName, file);
     if (error) throw error;
-    const { data } = supabaseClient.storage.from('cafe-assets').getPublicUrl(fileName);
+    const { data } = supabaseClient.storage.from('Tubi-caffe').getPublicUrl(fileName);
     return data.publicUrl;
 }
 
