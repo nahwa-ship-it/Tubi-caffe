@@ -2,8 +2,8 @@
 // SUPABASE CONFIG - Optimized for GitHub Pages
 // ==========================================
 
-const SUPABASE_URL = "https://bstlapezdavbjctkfdb.supabase.co";
-const SUPABASE_KEY = "sb_publishable_8YXdiu6iLWFcM2t-5Yz9Pg_o6XkRpwr";
+const SUPABASE_URL = "https://dssljeucfyxurxtlvyvv.supabase.co";
+const SUPABASE_KEY = "sb_publishable_B798Y2wl4MRTN7_szgLbkQ_ZVLj3AZF";
 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     auth: {
