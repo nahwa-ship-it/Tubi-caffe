@@ -1,6 +1,6 @@
 // ==========================================
-// APP.JS — DITENAGAI SUPABASE
-// Pastikan config.js (berisi SUPABASE_URL & SUPABASE_ANON_KEY)
+// APP.JS — DITENAGAI SUPABASE + MIDTRANS
+// Pastikan supabase.js (berisi SUPABASE_URL & SUPABASE_KEY)
 // dimuat SEBELUM file ini di setiap halaman HTML.
 // ==========================================
 
@@ -10,6 +10,212 @@ let appKategori = [];
 let appMeja = [];
 let appReservasi = [];
 let appPesanan = [];
+
+// ==========================================
+// KERANJANG BELANJA (CART) — hanya untuk index.html
+// ==========================================
+let cart = [];
+
+function addToCart(menuId) {
+    const item = appMenus.find(m => m.id === menuId);
+    if (!item) return;
+
+    const existing = cart.find(c => c.id === menuId);
+    if (existing) {
+        existing.qty += 1;
+    } else {
+        cart.push({ id: item.id, nama: item.nama, harga: Number(item.harga), qty: 1 });
+    }
+    renderCart();
+    openCart();
+}
+
+function changeQty(menuId, delta) {
+    const item = cart.find(c => c.id === menuId);
+    if (!item) return;
+    item.qty += delta;
+    if (item.qty <= 0) {
+        cart = cart.filter(c => c.id !== menuId);
+    }
+    renderCart();
+}
+
+function getCartTotal() {
+    return cart.reduce((sum, item) => sum + (item.harga * item.qty), 0);
+}
+
+function renderCart() {
+    const cartCount = document.getElementById("cartCount");
+    const cartItems = document.getElementById("cartItems");
+    const cartTotal = document.getElementById("cartTotal");
+    if (!cartItems) return;
+
+    const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+    if (cartCount) {
+        cartCount.innerText = totalQty;
+        cartCount.style.display = totalQty > 0 ? "flex" : "none";
+    }
+
+    if (cart.length === 0) {
+        cartItems.innerHTML = `<p style="text-align:center; color:#6b7280; padding:20px 0;">Keranjang masih kosong.</p>`;
+    } else {
+        cartItems.innerHTML = cart.map(item => `
+            <div class="cart-item">
+                <div class="cart-item-info">
+                    <p class="cart-item-name">${item.nama}</p>
+                    <p class="cart-item-price">Rp ${Number(item.harga).toLocaleString('id-ID')}</p>
+                </div>
+                <div class="cart-item-qty">
+                    <button onclick="changeQty('${item.id}', -1)">-</button>
+                    <span>${item.qty}</span>
+                    <button onclick="changeQty('${item.id}', 1)">+</button>
+                </div>
+            </div>
+        `).join("");
+    }
+
+    if (cartTotal) {
+        cartTotal.innerText = `Rp ${getCartTotal().toLocaleString('id-ID')}`;
+    }
+}
+
+function openCart() {
+    const panel = document.getElementById("cartPanel");
+    if (panel) panel.classList.add("active");
+}
+
+function closeCart() {
+    const panel = document.getElementById("cartPanel");
+    if (panel) panel.classList.remove("active");
+}
+
+async function submitCheckout(e) {
+    e.preventDefault();
+
+    if (cart.length === 0) {
+        alert("Keranjang masih kosong!");
+        return;
+    }
+
+    const nama = document.getElementById("checkoutNama").value.trim();
+    const wa = document.getElementById("checkoutWA").value.trim();
+    const btn = document.getElementById("btnCheckout");
+
+    if (!nama || !wa) {
+        alert("Nama dan nomor WA wajib diisi!");
+        return;
+    }
+
+    const originalText = btn.innerText;
+    btn.disabled = true;
+    btn.innerText = "Memproses...";
+
+    const orderId = `TUBI-${Date.now()}`;
+    const totalHarga = getCartTotal();
+
+    const itemsForDb = cart.map(item => ({
+        nama: item.nama,
+        harga: item.harga,
+        qty: item.qty
+    }));
+
+    // 1. Simpan dulu pesanan ke database dengan status "pending"
+    const { error: dbError } = await supabaseClient.from('pesanan').insert({
+        order_id: orderId,
+        nama_pelanggan: nama,
+        wa_pelanggan: wa,
+        items: itemsForDb,
+        total_harga: totalHarga,
+        status_pembayaran: 'pending'
+    });
+
+    if (dbError) {
+        alert("Gagal menyimpan pesanan: " + dbError.message);
+        btn.disabled = false;
+        btn.innerText = originalText;
+        return;
+    }
+
+    // 2. Minta token pembayaran Midtrans lewat Edge Function
+    const itemsForMidtrans = cart.map(item => ({
+        id: item.id,
+        price: item.harga,
+        quantity: item.qty,
+        name: item.nama.substring(0, 50)
+    }));
+
+    try {
+        const response = await fetch(
+            `${SUPABASE_URL}/functions/v1/create-transaction`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${SUPABASE_KEY}`
+                },
+                body: JSON.stringify({
+                    order_id: orderId,
+                    gross_amount: totalHarga,
+                    items: itemsForMidtrans,
+                    customer_name: nama,
+                    customer_phone: wa
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "Gagal membuat transaksi");
+        }
+
+        btn.disabled = false;
+        btn.innerText = originalText;
+
+        // 3. Buka popup pembayaran Midtrans Snap
+        window.snap.pay(data.token, {
+            onSuccess: function () {
+                alert("Pembayaran berhasil! Terima kasih sudah memesan.");
+                cart = [];
+                renderCart();
+                closeCart();
+                closeCheckoutForm();
+            },
+            onPending: function () {
+                alert("Pesanan dibuat, silakan selesaikan pembayaran.");
+                cart = [];
+                renderCart();
+                closeCart();
+                closeCheckoutForm();
+            },
+            onError: function () {
+                alert("Pembayaran gagal. Silakan coba lagi.");
+            },
+            onClose: function () {
+                alert("Kamu menutup halaman pembayaran sebelum selesai. Pesanan tetap tersimpan dengan status pending.");
+            }
+        });
+
+    } catch (err) {
+        alert("Gagal memproses pembayaran: " + err.message);
+        btn.disabled = false;
+        btn.innerText = originalText;
+    }
+}
+
+function openCheckoutForm() {
+    if (cart.length === 0) {
+        alert("Keranjang masih kosong!");
+        return;
+    }
+    const modal = document.getElementById("checkoutModal");
+    if (modal) modal.classList.add("active");
+}
+
+function closeCheckoutForm() {
+    const modal = document.getElementById("checkoutModal");
+    if (modal) modal.classList.remove("active");
+}
 
 // Upload file ke Supabase Storage, kembalikan public URL-nya
 async function uploadFile(file, folder) {
@@ -68,6 +274,12 @@ async function initPublicPage() {
     }
 
     renderPublicMenu('all');
+    renderCart();
+
+    const formCheckout = document.getElementById("formCheckout");
+    if (formCheckout) {
+        formCheckout.addEventListener("submit", submitCheckout);
+    }
 }
 
 function renderPublicMenu(category = 'all') {
@@ -90,6 +302,7 @@ function renderPublicMenu(category = 'all') {
                     <h3>${item.nama}</h3>
                     <p class="menu-price">Rp ${Number(item.harga).toLocaleString('id-ID')}</p>
                     <p style="font-size:13px; color:#6b7280; margin-top:5px;">${item.deskripsi || ''}</p>
+                    <button class="btn btn-primary btn-block" style="margin-top:10px;" onclick="addToCart('${item.id}')">+ Tambah ke Keranjang</button>
                 </div>
             </div>
         `;
@@ -597,18 +810,22 @@ function renderDashboardPesanan() {
     tbody.innerHTML = "";
 
     if (appPesanan.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#6b7280;">Belum ada pesanan masuk.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#6b7280;">Belum ada pesanan masuk.</td></tr>`;
         return;
     }
 
     appPesanan.forEach(p => {
+        const itemsText = (p.items || []).map(i => `${i.nama} x${i.qty}`).join(", ");
+        const statusBadge = p.status_pembayaran === 'settlement' ? 'Sudah Bayar' :
+                             p.status_pembayaran === 'pending' ? 'Menunggu' :
+                             p.status_pembayaran;
         tbody.innerHTML += `
             <tr>
-                <td>${p.tanggal || '-'}</td>
-                <td>${p.nama || '-'}</td>
-                <td>${p.item || '-'}</td>
-                <td>${p.qty || '-'}</td>
-                <td>${p.pembayaran || '-'}</td>
+                <td>${p.order_id}</td>
+                <td>${p.nama_pelanggan}</td>
+                <td>${itemsText}</td>
+                <td>Rp ${Number(p.total_harga).toLocaleString('id-ID')}</td>
+                <td>${statusBadge}</td>
                 <td>
                     <button class="btn btn-danger" onclick="hapusPesanan('${p.id}')">Hapus</button>
                 </td>
