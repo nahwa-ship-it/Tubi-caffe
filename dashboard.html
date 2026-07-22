@@ -12,12 +12,12 @@
             <h3>Dashboard Cafe</h3>
         </div>
         <nav class="sidebar-menu">
-            <a href="#" class="nav-link active" onclick="switchView('pengaturan', event)">Pengaturan Website</a>
-            <a href="#" class="nav-link" onclick="switchView('menu', event)">Kelola Menu</a>
-            <a href="#" class="nav-link" onclick="switchView('kategori', event)">Kelola Kategori</a>
-            <a href="#" class="nav-link" onclick="switchView('meja', event)">Kelola Meja</a>
-            <a href="#" class="nav-link" onclick="switchView('pesanan', event)">Pesanan Masuk</a>
-            <a href="#" class="nav-link" onclick="switchView('reservasiAdmin', event)">Reservasi Masuk</a>
+            <a href="#" class="nav-link active" onclick="switchView('pengaturan')">Pengaturan Website</a>
+            <a href="#" class="nav-link" onclick="switchView('menu')">Kelola Menu</a>
+            <a href="#" class="nav-link" onclick="switchView('kategori')">Kelola Kategori</a>
+            <a href="#" class="nav-link" onclick="switchView('meja')">Kelola Meja</a>
+            <a href="#" class="nav-link" onclick="switchView('pesanan')">Pesanan Masuk</a>
+            <a href="#" class="nav-link" onclick="switchView('reservasiAdmin')">Reservasi Masuk</a>
             <hr>
             <a href="#" class="nav-link logout-btn" onclick="logoutAdmin()">Logout</a>
         </nav>
@@ -95,10 +95,10 @@
 
         <!-- PANEL PESANAN MASUK -->
         <div id="view-pesanan" class="view-panel">
-            <h2>Pesanan Masuk (Simulasi transaksi)</h2>
+            <h2>Pesanan Masuk</h2>
             <div class="card table-responsive">
                 <table class="table">
-                    <thead><tr><th>Tanggal</th><th>Nama Pelanggan</th><th>Item Menu</th><th>Qty</th><th>Pembayaran</th><th>Aksi</th></tr></thead>
+                    <thead><tr><th>Order ID</th><th>Nama Pelanggan</th><th>Item Menu</th><th>Total</th><th>Status</th><th>Aksi</th></tr></thead>
                     <tbody id="tablePesananBody"></tbody>
                 </table>
             </div>
@@ -117,8 +117,8 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase.js"></script>
-<script src="app.js"></script>
+    <script src="supabase.js"></script>
+    <script src="app.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", initDashboardPage);
     </script>
