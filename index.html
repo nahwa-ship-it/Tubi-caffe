@@ -39,12 +39,59 @@
         </section>
     </main>
 
+    <!-- Tombol Keranjang Melayang -->
+    <button id="cartButton" class="cart-floating" onclick="openCart()">
+        🛒
+        <span id="cartCount" class="cart-count">0</span>
+    </button>
+
     <!-- Floating WhatsApp -->
     <a id="waFloat" href="#" target="_blank" class="wa-floating">💬 Hubungi Kami</a>
 
+    <!-- Panel Keranjang -->
+    <div id="cartPanel" class="cart-panel">
+        <div class="cart-panel-content">
+            <div class="cart-panel-header">
+                <h3>Keranjang Pesanan</h3>
+                <button onclick="closeCart()" class="cart-close-btn">&times;</button>
+            </div>
+            <div id="cartItems" class="cart-items"></div>
+            <div class="cart-footer">
+                <div class="cart-total-row">
+                    <span>Total</span>
+                    <span id="cartTotal">Rp 0</span>
+                </div>
+                <button class="btn btn-primary btn-block" onclick="openCheckoutForm()">Checkout</button>
+            </div>
+        </div>
+    </div>
+    <div id="cartOverlay" class="cart-overlay" onclick="closeCart()"></div>
+
+    <!-- Modal Checkout -->
+    <div id="checkoutModal" class="checkout-modal">
+        <div class="checkout-modal-content">
+            <div class="cart-panel-header">
+                <h3>Data Pemesan</h3>
+                <button onclick="closeCheckoutForm()" class="cart-close-btn">&times;</button>
+            </div>
+            <form id="formCheckout">
+                <div class="form-group">
+                    <label>Nama</label>
+                    <input type="text" id="checkoutNama" required>
+                </div>
+                <div class="form-group">
+                    <label>Nomor WhatsApp</label>
+                    <input type="tel" id="checkoutWA" placeholder="08xxxxxxxxxx" required>
+                </div>
+                <button type="submit" id="btnCheckout" class="btn btn-primary btn-block">Bayar Sekarang</button>
+            </form>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase.js"></script>
-<script src="app.js"></script> 
+    <script src="supabase.js"></script>
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="Mid-client-8_rBMFxCfMKS--9z"></script>
+    <script src="app.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", initPublicPage);
     </script>
