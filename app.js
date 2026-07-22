@@ -146,7 +146,7 @@ async function submitCheckout(e) {
 
     try {
         const response = await fetch(
-            `${SUPABASE_URL}/functions/v1/create-transaction`,
+            `${SUPABASE_URL}/functions/v1/hyper-api-hyper-api-`,
             {
                 method: "POST",
                 headers: {
