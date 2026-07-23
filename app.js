@@ -1,7 +1,5 @@
 // ==========================================
 // APP.JS — DITENAGAI SUPABASE + MIDTRANS
-// Pastikan supabase.js (berisi SUPABASE_URL & SUPABASE_KEY)
-// dimuat SEBELUM file ini di setiap halaman HTML.
 // ==========================================
 
 let appSettings = {};
